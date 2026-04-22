@@ -3,6 +3,8 @@
 VENV_PATH=./.venv
 ENTRYPOINT_SH="../simple_vuln_automater/entrypoint.sh"
 
+mkdir -p {configs,generated,reviewed}
+
 if [ -d "$VENV_PATH" ]; then
     echo "Activating virtual environment..."
     source "$VENV_PATH/bin/activate"
