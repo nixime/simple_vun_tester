@@ -1,0 +1,72 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.5",
+  "serialNumber": "urn:uuid:3e671687-395b-41f5-a30f-a58921a69b79",
+  "version": 2,
+  "metadata": {
+    "timestamp": "2026-04-20T21:40:00Z",
+    "component": {
+      "name": "Enterprise-Scanner-Target",
+      "type": "application",
+      "version": "2.4.1"
+    }
+  },
+  "components": [
+    {
+      "bom-ref": "pkg:generic/microsoft/sqlserver@2022?arch=x64",
+      "type": "library",
+      "name": "Microsoft SQL Server",
+      "version": "2022",
+      "purl": "pkg:generic/microsoft/sqlserver@2022?arch=x64",
+      "cpe": "cpe:2.3:a:microsoft:sql_server:2022:*:*:*:*:*:x64:*"
+    },
+    {
+      "bom-ref": "pkg:generic/microsoft/m365-apps-enterprise@16.0.17328.20142?arch=x64",
+      "type": "application",
+      "name": "Microsoft 365 Apps for Enterprise",
+      "version": "2402",
+      "purl": "pkg:generic/microsoft/m365-apps-enterprise@16.0.17328.20142?arch=x64",
+      "cpe": "cpe:2.3:a:microsoft:365_apps:-:*:*:*:enterprise:*:x64:*",
+      "properties": [
+        {
+          "name": "msft:update_channel",
+          "value": "Monthly Enterprise Channel"
+        },
+        {
+          "name": "msft:internal_build",
+          "value": "17328.20142"
+        }
+      ]
+    }
+  ],
+  "vulnerabilities": [
+    {
+      "id": "CVE-2026-21262",
+      "source": { "name": "NVD", "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-21262" },
+      "description": "SQL Server Elevation of Privilege (EoP) vulnerability (Zero-Day) allowing remote attackers with low privileges to gain sysadmin access.",
+      "ratings": [
+        {
+          "score": 8.8,
+          "severity": "high",
+          "method": "CVSSv31",
+          "vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H"
+        }
+      ],
+      "affects": [{ "ref": "pkg:generic/microsoft/sqlserver@2022?arch=x64" }]
+    },
+    {
+      "id": "CVE-2026-26144",
+      "source": { "name": "NVD", "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-26144" },
+      "description": "Information Disclosure vulnerability in Microsoft 365 Apps (Excel) via improper neutralization of input, specifically weaponizable via Copilot Agent.",
+      "ratings": [
+        {
+          "score": 7.5,
+          "severity": "high",
+          "method": "CVSSv31",
+          "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N"
+        }
+      ],
+      "affects": [{ "ref": "pkg:generic/microsoft/m365-apps-enterprise@16.0.17328.20142?arch=x64" }]
+    }
+  ]
+}
