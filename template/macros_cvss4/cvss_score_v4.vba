@@ -686,6 +686,25 @@ Public Function GetMacroVector(ByVal VectorStr As String) As String
                      CStr(getEqLevel5(vecArray)) & CStr(getEqLevel6(vecArray))
 End Function
 
+Public Function getExploit(epss As Double, KEV As String)
+    Dim ex As String, ea As String, ep As String, eu As String
+    ex = "Not Defined (X)"
+    ea = "Attacked (A)"
+    ep = "Proof of Concept (P)"
+    eu = "Unreported (U)"
+
+    getExploit = ex
+    If 1 = Val(KEV) Then
+        getExploit = ea
+    ElseIf epss >= 0.9 Then
+        getExploit = ea
+    ElseIf epss >= 0.5 Then
+        getExploit = ep
+    ElseIf epss >= 0.1 Then
+        getExploit = eu
+    End If
+End Function
+
 Public Function cvss_score(ByVal VectorStr As String) As Double
     Dim vecArray As Variant
     Dim IsNotApplicable As Boolean
