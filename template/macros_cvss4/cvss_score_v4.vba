@@ -45,6 +45,20 @@ Private Function UpdateDictValue(ByRef dict As Object, key As String, val As Str
     End If
 End Function
 
+Public Function Round1(Value As Double) As Double
+    ' Add a tiny epsilon to correct floating-point underflow/overflow precision issues
+    ' and ensure standard 1-decimal rounding matches the CVSS specification
+    Round1 = Int((Value + 0.0000001) * 10 + 0.5) / 10
+End Function
+
+Function GetMax(val1 As Double, val2 As Double) As Double
+    If val1 > val2 Then
+        GetMax = val1
+    Else
+        GetMax = val2
+    End If
+End Function
+
 ' ==============================================================================
 ' STATIC JSON DATA FUNCTIONS
 ' ==============================================================================
@@ -136,42 +150,285 @@ Function GetMaxSeverity(category As String, key As Integer, Optional subkey As I
     End Select
 End Function
 
+Function GetMacroBaseValue(macroVector as String) as Double
+	GetMacroBaseValue = -1
+	Select Case macroVector
+		Case "000000": GetMacroBaseValue = 10
+		Case "000001": GetMacroBaseValue = 9.9
+		Case "000010": GetMacroBaseValue = 9.8
+		Case "000011": GetMacroBaseValue = 9.5
+		Case "000020": GetMacroBaseValue = 9.5
+		Case "000021": GetMacroBaseValue = 9.2
+		Case "000100": GetMacroBaseValue = 10
+		Case "000101": GetMacroBaseValue = 9.6
+		Case "000110": GetMacroBaseValue = 9.3
+		Case "000111": GetMacroBaseValue = 8.7
+		Case "000120": GetMacroBaseValue = 9.1
+		Case "000121": GetMacroBaseValue = 8.1
+		Case "000200": GetMacroBaseValue = 9.3
+		Case "000201": GetMacroBaseValue = 9
+		Case "000210": GetMacroBaseValue = 8.9
+		Case "000211": GetMacroBaseValue = 8
+		Case "000220": GetMacroBaseValue = 8.1
+		Case "000221": GetMacroBaseValue = 6.8
+		Case "001000": GetMacroBaseValue = 9.8
+		Case "001001": GetMacroBaseValue = 9.5
+		Case "001010": GetMacroBaseValue = 9.5
+		Case "001011": GetMacroBaseValue = 9.2
+		Case "001020": GetMacroBaseValue = 9
+		Case "001021": GetMacroBaseValue = 8.4
+		Case "001100": GetMacroBaseValue = 9.3
+		Case "001101": GetMacroBaseValue = 9.2
+		Case "001110": GetMacroBaseValue = 8.9
+		Case "001111": GetMacroBaseValue = 8.1
+		Case "001120": GetMacroBaseValue = 8.1
+		Case "001121": GetMacroBaseValue = 6.5
+		Case "001200": GetMacroBaseValue = 8.8
+		Case "001201": GetMacroBaseValue = 8
+		Case "001210": GetMacroBaseValue = 7.8
+		Case "001211": GetMacroBaseValue = 7
+		Case "001220": GetMacroBaseValue = 6.9
+		Case "001221": GetMacroBaseValue = 4.8
+		Case "002001": GetMacroBaseValue = 9.2
+		Case "002011": GetMacroBaseValue = 8.2
+		Case "002021": GetMacroBaseValue = 7.2
+		Case "002101": GetMacroBaseValue = 7.9
+		Case "002111": GetMacroBaseValue = 6.9
+		Case "002121": GetMacroBaseValue = 5
+		Case "002201": GetMacroBaseValue = 6.9
+		Case "002211": GetMacroBaseValue = 5.5
+		Case "002221": GetMacroBaseValue = 2.7
+		Case "010000": GetMacroBaseValue = 9.9
+		Case "010001": GetMacroBaseValue = 9.7
+		Case "010010": GetMacroBaseValue = 9.5
+		Case "010011": GetMacroBaseValue = 9.2
+		Case "010020": GetMacroBaseValue = 9.2
+		Case "010021": GetMacroBaseValue = 8.5
+		Case "010100": GetMacroBaseValue = 9.5
+		Case "010101": GetMacroBaseValue = 9.1
+		Case "010110": GetMacroBaseValue = 9
+		Case "010111": GetMacroBaseValue = 8.3
+		Case "010120": GetMacroBaseValue = 8.4
+		Case "010121": GetMacroBaseValue = 7.1
+		Case "010200": GetMacroBaseValue = 9.2
+		Case "010201": GetMacroBaseValue = 8.1
+		Case "010210": GetMacroBaseValue = 8.2
+		Case "010211": GetMacroBaseValue = 7.1
+		Case "010220": GetMacroBaseValue = 7.2
+		Case "010221": GetMacroBaseValue = 5.3
+		Case "011000": GetMacroBaseValue = 9.5
+		Case "011001": GetMacroBaseValue = 9.3
+		Case "011010": GetMacroBaseValue = 9.2
+		Case "011011": GetMacroBaseValue = 8.5
+		Case "011020": GetMacroBaseValue = 8.5
+		Case "011021": GetMacroBaseValue = 7.3
+		Case "011100": GetMacroBaseValue = 9.2
+		Case "011101": GetMacroBaseValue = 8.2
+		Case "011110": GetMacroBaseValue = 8
+		Case "011111": GetMacroBaseValue = 7.2
+		Case "011120": GetMacroBaseValue = 7
+		Case "011121": GetMacroBaseValue = 5.9
+		Case "011200": GetMacroBaseValue = 8.4
+		Case "011201": GetMacroBaseValue = 7
+		Case "011210": GetMacroBaseValue = 7.1
+		Case "011211": GetMacroBaseValue = 5.2
+		Case "011220": GetMacroBaseValue = 5
+		Case "011221": GetMacroBaseValue = 3
+		Case "012001": GetMacroBaseValue = 8.6
+		Case "012011": GetMacroBaseValue = 7.5
+		Case "012021": GetMacroBaseValue = 5.2
+		Case "012101": GetMacroBaseValue = 7.1
+		Case "012111": GetMacroBaseValue = 5.2
+		Case "012121": GetMacroBaseValue = 2.9
+		Case "012201": GetMacroBaseValue = 6.3
+		Case "012211": GetMacroBaseValue = 2.9
+		Case "012221": GetMacroBaseValue = 1.7
+		Case "100000": GetMacroBaseValue = 9.8
+		Case "100001": GetMacroBaseValue = 9.5
+		Case "100010": GetMacroBaseValue = 9.4
+		Case "100011": GetMacroBaseValue = 8.7
+		Case "100020": GetMacroBaseValue = 9.1
+		Case "100021": GetMacroBaseValue = 8.1
+		Case "100100": GetMacroBaseValue = 9.4
+		Case "100101": GetMacroBaseValue = 8.9
+		Case "100110": GetMacroBaseValue = 8.6
+		Case "100111": GetMacroBaseValue = 7.4
+		Case "100120": GetMacroBaseValue = 7.7
+		Case "100121": GetMacroBaseValue = 6.4
+		Case "100200": GetMacroBaseValue = 8.7
+		Case "100201": GetMacroBaseValue = 7.5
+		Case "100210": GetMacroBaseValue = 7.4
+		Case "100211": GetMacroBaseValue = 6.3
+		Case "100220": GetMacroBaseValue = 6.3
+		Case "100221": GetMacroBaseValue = 4.9
+		Case "101000": GetMacroBaseValue = 9.4
+		Case "101001": GetMacroBaseValue = 8.9
+		Case "101010": GetMacroBaseValue = 8.8
+		Case "101011": GetMacroBaseValue = 7.7
+		Case "101020": GetMacroBaseValue = 7.6
+		Case "101021": GetMacroBaseValue = 6.7
+		Case "101100": GetMacroBaseValue = 8.6
+		Case "101101": GetMacroBaseValue = 7.6
+		Case "101110": GetMacroBaseValue = 7.4
+		Case "101111": GetMacroBaseValue = 5.8
+		Case "101120": GetMacroBaseValue = 5.9
+		Case "101121": GetMacroBaseValue = 5
+		Case "101200": GetMacroBaseValue = 7.2
+		Case "101201": GetMacroBaseValue = 5.7
+		Case "101210": GetMacroBaseValue = 5.7
+		Case "101211": GetMacroBaseValue = 5.2
+		Case "101220": GetMacroBaseValue = 5.2
+		Case "101221": GetMacroBaseValue = 2.5
+		Case "102001": GetMacroBaseValue = 8.3
+		Case "102011": GetMacroBaseValue = 7
+		Case "102021": GetMacroBaseValue = 5.4
+		Case "102101": GetMacroBaseValue = 6.5
+		Case "102111": GetMacroBaseValue = 5.8
+		Case "102121": GetMacroBaseValue = 2.6
+		Case "102201": GetMacroBaseValue = 5.3
+		Case "102211": GetMacroBaseValue = 2.1
+		Case "102221": GetMacroBaseValue = 1.3
+		Case "110000": GetMacroBaseValue = 9.5
+		Case "110001": GetMacroBaseValue = 9
+		Case "110010": GetMacroBaseValue = 8.8
+		Case "110011": GetMacroBaseValue = 7.6
+		Case "110020": GetMacroBaseValue = 7.6
+		Case "110021": GetMacroBaseValue = 7
+		Case "110100": GetMacroBaseValue = 9
+		Case "110101": GetMacroBaseValue = 7.7
+		Case "110110": GetMacroBaseValue = 7.5
+		Case "110111": GetMacroBaseValue = 6.2
+		Case "110120": GetMacroBaseValue = 6.1
+		Case "110121": GetMacroBaseValue = 5.3
+		Case "110200": GetMacroBaseValue = 7.7
+		Case "110201": GetMacroBaseValue = 6.6
+		Case "110210": GetMacroBaseValue = 6.8
+		Case "110211": GetMacroBaseValue = 5.9
+		Case "110220": GetMacroBaseValue = 5.2
+		Case "110221": GetMacroBaseValue = 3
+		Case "111000": GetMacroBaseValue = 8.9
+		Case "111001": GetMacroBaseValue = 7.8
+		Case "111010": GetMacroBaseValue = 7.6
+		Case "111011": GetMacroBaseValue = 6.7
+		Case "111020": GetMacroBaseValue = 6.2
+		Case "111021": GetMacroBaseValue = 5.8
+		Case "111100": GetMacroBaseValue = 7.4
+		Case "111101": GetMacroBaseValue = 5.9
+		Case "111110": GetMacroBaseValue = 5.7
+		Case "111111": GetMacroBaseValue = 5.7
+		Case "111120": GetMacroBaseValue = 4.7
+		Case "111121": GetMacroBaseValue = 2.3
+		Case "111200": GetMacroBaseValue = 6.1
+		Case "111201": GetMacroBaseValue = 5.2
+		Case "111210": GetMacroBaseValue = 5.7
+		Case "111211": GetMacroBaseValue = 2.9
+		Case "111220": GetMacroBaseValue = 2.4
+		Case "111221": GetMacroBaseValue = 1.6
+		Case "112001": GetMacroBaseValue = 7.1
+		Case "112011": GetMacroBaseValue = 5.9
+		Case "112021": GetMacroBaseValue = 3
+		Case "112101": GetMacroBaseValue = 5.8
+		Case "112111": GetMacroBaseValue = 2.6
+		Case "112121": GetMacroBaseValue = 1.5
+		Case "112201": GetMacroBaseValue = 2.3
+		Case "112211": GetMacroBaseValue = 1.3
+		Case "112221": GetMacroBaseValue = 0.6
+		Case "200000": GetMacroBaseValue = 9.3
+		Case "200001": GetMacroBaseValue = 8.7
+		Case "200010": GetMacroBaseValue = 8.6
+		Case "200011": GetMacroBaseValue = 7.2
+		Case "200020": GetMacroBaseValue = 7.5
+		Case "200021": GetMacroBaseValue = 5.8
+		Case "200100": GetMacroBaseValue = 8.6
+		Case "200101": GetMacroBaseValue = 7.4
+		Case "200110": GetMacroBaseValue = 7.4
+		Case "200111": GetMacroBaseValue = 6.1
+		Case "200120": GetMacroBaseValue = 5.6
+		Case "200121": GetMacroBaseValue = 3.4
+		Case "200200": GetMacroBaseValue = 7
+		Case "200201": GetMacroBaseValue = 5.4
+		Case "200210": GetMacroBaseValue = 5.2
+		Case "200211": GetMacroBaseValue = 4
+		Case "200220": GetMacroBaseValue = 4
+		Case "200221": GetMacroBaseValue = 2.2
+		Case "201000": GetMacroBaseValue = 8.5
+		Case "201001": GetMacroBaseValue = 7.5
+		Case "201010": GetMacroBaseValue = 7.4
+		Case "201011": GetMacroBaseValue = 5.5
+		Case "201020": GetMacroBaseValue = 6.2
+		Case "201021": GetMacroBaseValue = 5.1
+		Case "201100": GetMacroBaseValue = 7.2
+		Case "201101": GetMacroBaseValue = 5.7
+		Case "201110": GetMacroBaseValue = 5.5
+		Case "201111": GetMacroBaseValue = 4.1
+		Case "201120": GetMacroBaseValue = 4.6
+		Case "201121": GetMacroBaseValue = 1.9
+		Case "201200": GetMacroBaseValue = 5.3
+		Case "201201": GetMacroBaseValue = 3.6
+		Case "201210": GetMacroBaseValue = 3.4
+		Case "201211": GetMacroBaseValue = 1.9
+		Case "201220": GetMacroBaseValue = 1.9
+		Case "201221": GetMacroBaseValue = 0.8
+		Case "202001": GetMacroBaseValue = 6.4
+		Case "202011": GetMacroBaseValue = 5.1
+		Case "202021": GetMacroBaseValue = 2
+		Case "202101": GetMacroBaseValue = 4.7
+		Case "202111": GetMacroBaseValue = 2.1
+		Case "202121": GetMacroBaseValue = 1.1
+		Case "202201": GetMacroBaseValue = 2.4
+		Case "202211": GetMacroBaseValue = 0.9
+		Case "202221": GetMacroBaseValue = 0.4
+		Case "210000": GetMacroBaseValue = 8.8
+		Case "210001": GetMacroBaseValue = 7.5
+		Case "210010": GetMacroBaseValue = 7.3
+		Case "210011": GetMacroBaseValue = 5.3
+		Case "210020": GetMacroBaseValue = 6
+		Case "210021": GetMacroBaseValue = 5
+		Case "210100": GetMacroBaseValue = 7.3
+		Case "210101": GetMacroBaseValue = 5.5
+		Case "210110": GetMacroBaseValue = 5.9
+		Case "210111": GetMacroBaseValue = 4
+		Case "210120": GetMacroBaseValue = 4.1
+		Case "210121": GetMacroBaseValue = 2
+		Case "210200": GetMacroBaseValue = 5.4
+		Case "210201": GetMacroBaseValue = 4.3
+		Case "210210": GetMacroBaseValue = 4.5
+		Case "210211": GetMacroBaseValue = 2.2
+		Case "210220": GetMacroBaseValue = 2
+		Case "210221": GetMacroBaseValue = 1.1
+		Case "211000": GetMacroBaseValue = 7.5
+		Case "211001": GetMacroBaseValue = 5.5
+		Case "211010": GetMacroBaseValue = 5.8
+		Case "211011": GetMacroBaseValue = 4.5
+		Case "211020": GetMacroBaseValue = 4
+		Case "211021": GetMacroBaseValue = 2.1
+		Case "211100": GetMacroBaseValue = 6.1
+		Case "211101": GetMacroBaseValue = 5.1
+		Case "211110": GetMacroBaseValue = 4.8
+		Case "211111": GetMacroBaseValue = 1.8
+		Case "211120": GetMacroBaseValue = 2
+		Case "211121": GetMacroBaseValue = 0.9
+		Case "211200": GetMacroBaseValue = 4.6
+		Case "211201": GetMacroBaseValue = 1.8
+		Case "211210": GetMacroBaseValue = 1.7
+		Case "211211": GetMacroBaseValue = 0.7
+		Case "211220": GetMacroBaseValue = 0.8
+		Case "211221": GetMacroBaseValue = 0.2
+		Case "212001": GetMacroBaseValue = 5.3
+		Case "212011": GetMacroBaseValue = 2.4
+		Case "212021": GetMacroBaseValue = 1.4
+		Case "212101": GetMacroBaseValue = 2.4
+		Case "212111": GetMacroBaseValue = 1.2
+		Case "212121": GetMacroBaseValue = 0.5
+		Case "212201": GetMacroBaseValue = 1
+		Case "212211": GetMacroBaseValue = 0.3
+		Case "212221": GetMacroBaseValue = 0.1
+	End Select
+End Function
+
 ' ==============================================================================
 ' LOOKUP & PARSING LOGIC
 ' ==============================================================================
-Private Function getSafeRangeSearch(rangeName As String, findString As String) As String
-    Dim foundValue As String: foundValue = ""
-    Dim targetRange As Object, r As Long, rowCount As Long, currentKey As String
-
-    On Error Resume Next
-    If Not IsExcel() Then
-        Dim oDoc As Object
-        Set oDoc = ThisComponent
-        If oDoc.NamedRanges.hasByName(rangeName) Then
-            Set targetRange = oDoc.NamedRanges.getByName(rangeName).getReferredCells()
-            rowCount = targetRange.getRows().getCount()
-            For r = 0 To rowCount - 1
-                currentKey = Trim(targetRange.getCellByPosition(0, r).getString())
-                If currentKey = findString Then
-                    foundValue = CStr(targetRange.getCellByPosition(1, r).getValue())
-                    Exit For
-                End If
-            Next r
-        End If
-    Else
-        Set targetRange = Range(rangeName)
-        rowCount = targetRange.Rows.Count
-        For r = 1 To rowCount
-            currentKey = Trim(CStr(targetRange.Cells(r, 1).Value))
-            If currentKey = findString Then
-                foundValue = CStr(targetRange.Cells(r, 2).Value)
-                Exit For
-            End If
-        Next r
-    End If
-    getSafeRangeSearch = foundValue
-End Function
-
 Private Function FillDefaults(ByRef dict As Object)
     Dim keys As Variant, i As Integer
     keys = Array("AV", "AC", "AT", "PR", "UI", "VC", "VI", "VA", "SC", "SI", "SA", "E", _
@@ -226,10 +483,6 @@ Private Function ParseVectorString(ByVal VectorStr As String) As Object
 
     ApplyOverrides dict
     Set ParseVectorString = dict
-End Function
-
-Private Function GetMacroVectorBaseScore(ByVal macroVector As String) As Double
-    GetMacroVectorBaseScore = getSafeRangeSearch("MacroVectorKeyMap", macroVector)
 End Function
 
 ' ==============================================================================
@@ -448,6 +701,8 @@ Public Function cvss_score(ByVal VectorStr As String) As Double
     Dim macroVectorScore As Double
     Dim v As Variant
 
+    On Error GoTo ErrorHandler
+
     Set metric = ParseVectorString(VectorStr)
 
     IsNotApplicable = True
@@ -465,7 +720,11 @@ Public Function cvss_score(ByVal VectorStr As String) As Double
     Dim macroValueResult As String
     Dim eq1 As Integer, eq2 As Integer, eq3 As Integer, eq4 As Integer, eq5 As Integer, eq6 As Integer
     macroValueResult = GetMacroVector(VectorStr)
-    macroVectorScore = GetMacroVectorBaseScore(macroValueResult)
+    macroVectorScore = GetMacroBaseValue(macroValueResult)
+    if macroVectorScore = -1 Then
+    	cvss_score = -1
+    	Exit Function
+    End If
 
     eq1 = CInt(Mid(macroValueResult, 1, 1))
     eq2 = CInt(Mid(macroValueResult, 2, 1))
@@ -474,60 +733,80 @@ Public Function cvss_score(ByVal VectorStr As String) As Double
     eq5 = CInt(Mid(macroValueResult, 5, 1))
     eq6 = CInt(Mid(macroValueResult, 6, 1))
 
-    Dim eq1_next_lower_macro As String
-    Dim eq2_next_lower_macro As String
-    eq1_next_lower_macro = CStr(eq1 + 1) & CStr(eq2) & CStr(eq3) & CStr(eq4) & CStr(eq5) & CStr(eq6)
-    eq2_next_lower_macro = CStr(eq1) & CStr(eq2 + 1) & CStr(eq3) & CStr(eq4) & CStr(eq5) & CStr(eq6)
+    '#############################
+    ' DETERMINE NEXT CLOSEST MACRO
+    '#############################
+    Dim eq1_next_lower_macro As String: eq1_next_lower_macro = ""
+    Dim eq2_next_lower_macro As String: eq2_next_lower_macro = ""
+    Dim eq4_next_lower_macro As String: eq4_next_lower_macro = ""
+    Dim eq5_next_lower_macro As String: eq5_next_lower_macro = ""
 
+    If eq1 < 2 Then eq1_next_lower_macro = CStr(eq1 + 1) & CStr(eq2) & CStr(eq3) & CStr(eq4) & CStr(eq5) & CStr(eq6)
+    If eq2 < 2 Then eq2_next_lower_macro = CStr(eq1) & CStr(eq2 + 1) & CStr(eq3) & CStr(eq4) & CStr(eq5) & CStr(eq6)
+    If eq4 < 2 Then eq4_next_lower_macro = CStr(eq1) & CStr(eq2) & CStr(eq3) & CStr(eq4 + 1) & CStr(eq5) & CStr(eq6)
+    if eq5 < 2 Then eq5_next_lower_macro = CStr(eq1) & CStr(eq2) & CStr(eq3) & CStr(eq4) & CStr(eq5 + 1) & CStr(eq6)
+    
     Dim eq3eq6_next_lower_macro As String
     Dim eq3eq6_next_lower_macro_left As String
     Dim eq3eq6_next_lower_macro_right As String
-    
     If eq3 = 1 And eq6 = 1 Then
+    	' 11 --> 21
         eq3eq6_next_lower_macro = CStr(eq1) & CStr(eq2) & CStr(eq3 + 1) & CStr(eq4) & CStr(eq5) & CStr(eq6)
     ElseIf eq3 = 0 And eq6 = 1 Then
+    	' 01 --> 11
         eq3eq6_next_lower_macro = CStr(eq1) & CStr(eq2) & CStr(eq3 + 1) & CStr(eq4) & CStr(eq5) & CStr(eq6)
     ElseIf eq3 = 1 And eq6 = 0 Then
+    	' 10 --> 11
         eq3eq6_next_lower_macro = CStr(eq1) & CStr(eq2) & CStr(eq3) & CStr(eq4) & CStr(eq5) & CStr(eq6 + 1)
     ElseIf eq3 = 0 And eq6 = 0 Then
+    	' 00 --> 01
+    	' 00 --> 10
         eq3eq6_next_lower_macro_left = CStr(eq1) & CStr(eq2) & CStr(eq3) & CStr(eq4) & CStr(eq5) & CStr(eq6 + 1)
         eq3eq6_next_lower_macro_right = CStr(eq1) & CStr(eq2) & CStr(eq3 + 1) & CStr(eq4) & CStr(eq5) & CStr(eq6)
     Else
-        eq3eq6_next_lower_macro = CStr(eq1) & CStr(eq2) & CStr(eq3) & CStr(eq4) & CStr(eq5) & CStr(eq6 + 1)
+    	' 21 --> 32 (does not exist)
+        eq3eq6_next_lower_macro = CStr(eq1) & CStr(eq2) & CStr(eq3+1) & CStr(eq4) & CStr(eq5) & CStr(eq6 + 1)
     End If
 
-    Dim eq4_next_lower_macro As String
-    Dim eq5_next_lower_macro As String
-    eq4_next_lower_macro = CStr(eq1) & CStr(eq2) & CStr(eq3) & CStr(eq4 + 1) & CStr(eq5) & CStr(eq6)
-    eq5_next_lower_macro = CStr(eq1) & CStr(eq2) & CStr(eq3) & CStr(eq4) & CStr(eq5 + 1) & CStr(eq6)
-
-    Dim score_eq1_next_lower_macro As Variant
-    Dim score_eq2_next_lower_macro As Variant
-    score_eq1_next_lower_macro = getSafeRangeSearch("MacroVectorKeyMap", eq1_next_lower_macro)
-    score_eq2_next_lower_macro = getSafeRangeSearch("MacroVectorKeyMap", eq2_next_lower_macro)
-
+    '#############################
+    ' GATHER NEXT MACRO SCORES
+    '#############################
+    Dim score_eq1_next_lower_macro As Variant: score_eq1_next_lower_macro = -1
+    Dim score_eq2_next_lower_macro As Variant: score_eq2_next_lower_macro = -1
     Dim score_eq3eq6_next_lower_macro As Variant
     Dim score_eq3eq6_next_lower_macro_left As Variant
     Dim score_eq3eq6_next_lower_macro_right As Variant
+    Dim score_eq4_next_lower_macro As Variant: score_eq4_next_lower_macro = -1
+    Dim score_eq5_next_lower_macro As Variant: score_eq5_next_lower_macro = -1
     
+    If eq1_next_lower_macro <> "" Then score_eq1_next_lower_macro = GetMacroBaseValue(eq1_next_lower_macro)
+    If eq2_next_lower_macro <> "" Then score_eq2_next_lower_macro = GetMacroBaseValue(eq2_next_lower_macro)
+    If eq4_next_lower_macro <> "" Then score_eq4_next_lower_macro = GetMacroBaseValue(eq4_next_lower_macro)
+    If eq5_next_lower_macro <> "" Then score_eq5_next_lower_macro = GetMacroBaseValue(eq5_next_lower_macro)
+
+    ' Handle EQ3 and EQ6
     If eq3 = 0 And eq6 = 0 Then
-        score_eq3eq6_next_lower_macro_left = getSafeRangeSearch("MacroVectorKeyMap", eq3eq6_next_lower_macro_left)
-        score_eq3eq6_next_lower_macro_right = getSafeRangeSearch("MacroVectorKeyMap", eq3eq6_next_lower_macro_right)
+        score_eq3eq6_next_lower_macro_left = GetMacroBaseValue(eq3eq6_next_lower_macro_left)
+        score_eq3eq6_next_lower_macro_right = GetMacroBaseValue(eq3eq6_next_lower_macro_right)
+    	
+	    If score_eq3eq6_next_lower_macro_left < 0 Then score_eq3eq6_next_lower_macro_left = macroVectorScore
+	    If score_eq3eq6_next_lower_macro_right < 0 Then score_eq3eq6_next_lower_macro_right = macroVectorScore
 
         If Val(score_eq3eq6_next_lower_macro_left) > Val(score_eq3eq6_next_lower_macro_right) Then
             score_eq3eq6_next_lower_macro = score_eq3eq6_next_lower_macro_left
+            eq3eq6_next_lower_macro = eq3eq6_next_lower_macro_left
         Else
             score_eq3eq6_next_lower_macro = score_eq3eq6_next_lower_macro_right
+            eq3eq6_next_lower_macro = eq3eq6_next_lower_macro_right
         End If
     Else
-        score_eq3eq6_next_lower_macro = getSafeRangeSearch("MacroVectorKeyMap", eq3eq6_next_lower_macro)
+        score_eq3eq6_next_lower_macro = GetMacroBaseValue(eq3eq6_next_lower_macro)
+        If score_eq3eq6_next_lower_macro < 0 Then eq3eq6_next_lower_macro = ""
     End If
 
-    Dim score_eq4_next_lower_macro As Variant
-    Dim score_eq5_next_lower_macro As Variant
-    score_eq4_next_lower_macro = getSafeRangeSearch("MacroVectorKeyMap", eq4_next_lower_macro)
-    score_eq5_next_lower_macro = getSafeRangeSearch("MacroVectorKeyMap", eq5_next_lower_macro)
-
+    '#############################
+    ' EQ MAX CALCULATIONS
+    '#############################   
     Dim eq1_maxes As Variant, eq2_maxes As Variant, eq3_eq6_maxes As Variant, eq4_maxes As Variant, eq5_maxes As Variant
     eq1_maxes = getEQMaxes(macroValueResult, 1)
     eq2_maxes = getEQMaxes(macroValueResult, 2)
@@ -555,6 +834,9 @@ Public Function cvss_score(ByVal VectorStr As String) As Double
         Next eq2_max
     Next eq1_max
 
+    '#############################
+    ' SEVERITY DISTANCE
+    '#############################
     Dim severity_distance_AV As Double, severity_distance_PR As Double, severity_distance_UI As Double
     Dim severity_distance_AC As Double, severity_distance_AT As Double
     Dim severity_distance_VC As Double, severity_distance_VI As Double, severity_distance_VA As Double
@@ -596,6 +878,9 @@ Public Function cvss_score(ByVal VectorStr As String) As Double
         End If
     Next max_vector
 
+    '#############################
+    ' SEVERITY SCORING
+    '#############################
     Dim current_severity_distance_eq1 As Double
     Dim current_severity_distance_eq2 As Double
     Dim current_severity_distance_eq3eq6 As Double
@@ -608,18 +893,25 @@ Public Function cvss_score(ByVal VectorStr As String) As Double
     current_severity_distance_eq4 = severity_distance_SC + severity_distance_SI + severity_distance_SA
     current_severity_distance_eq5 = 0
 
-    Dim available_distance_eq1 As Double
-    Dim available_distance_eq2 As Double
-    Dim available_distance_eq3eq6 As Double
-    Dim available_distance_eq4 As Double
-    Dim available_distance_eq5 As Double
+    '#############################
+    ' DISTANCES
+    '#############################
+    Dim available_distance_eq1 As Double: available_distance_eq1 = macroVectorScore - Val(score_eq1_next_lower_macro)
+    Dim available_distance_eq2 As Double: available_distance_eq2 = macroVectorScore - Val(score_eq2_next_lower_macro)
+    Dim available_distance_eq3eq6 As Double: available_distance_eq3eq6 = macroVectorScore - Val(score_eq3eq6_next_lower_macro)
+    Dim available_distance_eq4 As Double: available_distance_eq4 = macroVectorScore - Val(score_eq4_next_lower_macro)
+    Dim available_distance_eq5 As Double: available_distance_eq5 = macroVectorScore - Val(score_eq5_next_lower_macro)
     
-    available_distance_eq1 = macroVectorScore - Val(score_eq1_next_lower_macro)
-    available_distance_eq2 = macroVectorScore - Val(score_eq2_next_lower_macro)
-    available_distance_eq3eq6 = macroVectorScore - Val(score_eq3eq6_next_lower_macro)
-    available_distance_eq4 = macroVectorScore - Val(score_eq4_next_lower_macro)
-    available_distance_eq5 = macroVectorScore - Val(score_eq5_next_lower_macro)
+    ' Fix binary underflow: prevent it from dropping below 0
+    If available_distance_eq1 < 0 Then available_distance_eq1 = 0
+    If available_distance_eq2 < 0 Then available_distance_eq2 = 0
+    If available_distance_eq3eq6 < 0 Then available_distance_eq3eq6 = 0
+    If available_distance_eq4 < 0 Then available_distance_eq4 = 0
+    If available_distance_eq5 < 0 Then available_distance_eq5 = 0
 
+    '#############################
+    ' NORMALIZATION
+    '#############################
     Dim n_existing_lower As Double: n_existing_lower = 0
     Dim normalized_severity_eq1 As Double: normalized_severity_eq1 = 0
     Dim normalized_severity_eq2 As Double: normalized_severity_eq2 = 0
@@ -633,42 +925,57 @@ Public Function cvss_score(ByVal VectorStr As String) As Double
     maxSeverity_eq3eq6 = GetMaxSeverity("eq3eq6", eq3, eq6) * 0.1
     maxSeverity_eq4 = GetMaxSeverity("eq4", eq4) * 0.1
 
+    '#############################
+    ' PERCENT TO NEXT SEVERITY
+    '#############################
     Dim percent_to_next_eq1_severity As Double
     Dim percent_to_next_eq2_severity As Double
     Dim percent_to_next_eq3eq6_severity As Double
     Dim percent_to_next_eq4_severity As Double
     Dim percent_to_next_eq5_severity As Double
 
-    If score_eq1_next_lower_macro <> "" Then
+    If eq1_next_lower_macro <> "" and score_eq1_next_lower_macro >= 0 Then
         available_distance_eq1 = macroVectorScore - Val(score_eq1_next_lower_macro)
+        ' Fix binary underflow: prevent it from dropping below 0
+        If available_distance_eq1 < 0 Then available_distance_eq1 = 0
+
         n_existing_lower = n_existing_lower + 1
         percent_to_next_eq1_severity = (current_severity_distance_eq1) / maxSeverity_eq1
         normalized_severity_eq1 = available_distance_eq1 * percent_to_next_eq1_severity
     End If
     
-    If score_eq2_next_lower_macro <> "" Then
+    If eq2_next_lower_macro <> "" and score_eq2_next_lower_macro >= 0 Then
         available_distance_eq2 = macroVectorScore - Val(score_eq2_next_lower_macro)
+        If available_distance_eq2 < 0 Then available_distance_eq2 = 0
+
         n_existing_lower = n_existing_lower + 1
         percent_to_next_eq2_severity = (current_severity_distance_eq2) / maxSeverity_eq2
         normalized_severity_eq2 = available_distance_eq2 * percent_to_next_eq2_severity
     End If
 
-    If score_eq3eq6_next_lower_macro <> "" Then
+	' Needs to compare number not string
+    If eq3eq6_next_lower_macro <> "" and score_eq3eq6_next_lower_macro >= 0 Then
         available_distance_eq3eq6 = macroVectorScore - Val(score_eq3eq6_next_lower_macro)
+        If available_distance_eq3eq6 < 0 Then available_distance_eq3eq6 = 0
+
         n_existing_lower = n_existing_lower + 1
         percent_to_next_eq3eq6_severity = (current_severity_distance_eq3eq6) / maxSeverity_eq3eq6
         normalized_severity_eq3eq6 = available_distance_eq3eq6 * percent_to_next_eq3eq6_severity
     End If
 
-    If score_eq4_next_lower_macro <> "" Then
+    If eq4_next_lower_macro <> "" and score_eq4_next_lower_macro >= 0 Then
         available_distance_eq4 = macroVectorScore - Val(score_eq4_next_lower_macro)
+        If available_distance_eq4 < 0 Then available_distance_eq4 = 0
+
         n_existing_lower = n_existing_lower + 1
         percent_to_next_eq4_severity = (current_severity_distance_eq4) / maxSeverity_eq4
         normalized_severity_eq4 = available_distance_eq4 * percent_to_next_eq4_severity
     End If
     
-    If score_eq5_next_lower_macro <> "" Then
+    If eq5_next_lower_macro <> "" and score_eq5_next_lower_macro >= 0 Then
         available_distance_eq5 = macroVectorScore - Val(score_eq5_next_lower_macro)
+        If available_distance_eq5 < 0 Then available_distance_eq5 = 0
+
         n_existing_lower = n_existing_lower + 1
         percent_to_next_eq5_severity = 0
         normalized_severity_eq5 = available_distance_eq5 * percent_to_next_eq5_severity
@@ -689,5 +996,8 @@ Public Function cvss_score(ByVal VectorStr As String) As Double
         macroVectorScore = 10.0
     End If
     
-    cvss_score = Round(macroVectorScore, 1)
+    cvss_score = Round1(macroVectorScore, 1)
+    Exit Function
+ErrorHandler:
+    cvss_score = -10
 End Function

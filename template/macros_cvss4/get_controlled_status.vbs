@@ -36,7 +36,7 @@ Function GET_CONTROLLED_STATUS(ByVal cvssScore As Double, ByVal safetyRating As 
     ' If accessing it fails or evaluates as empty, the script is running inside native Excel VBA.
     If Not IsEmpty(ThisComponent) Then isExcel = False
     Err.Clear
-    On Error GoTo 0
+    On Error GoTo ErrorHandler
 
     ' Initialize default return string in case lookup coordinates fail to resolve
     foundStatus = "Not Found"
@@ -58,7 +58,7 @@ Function GET_CONTROLLED_STATUS(ByVal cvssScore As Double, ByVal safetyRating As 
         On Error Resume Next
         ' Native Excel engine resolves string keys directly against the global application Workbook Range collection
         Set targetRange = Range("_lookup_SafetyHeatMap")
-        On Error GoTo 0
+        On Error GoTo ErrorHandler
     End If
 
     ' --- STEP 3: PLATFORM-AGNOSTIC DATA INTERROGATION ---
@@ -97,6 +97,8 @@ Function GET_CONTROLLED_STATUS(ByVal cvssScore As Double, ByVal safetyRating As 
 
     ' Assign final output state back to the spreadsheet function calling framework
     GET_CONTROLLED_STATUS = foundStatus
+ErrorHandler:
+    GET_CONTROLLED_STATUS = "Unknown"
 End Function
 
 
