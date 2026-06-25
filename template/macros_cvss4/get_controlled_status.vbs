@@ -97,6 +97,8 @@ Function GET_CONTROLLED_STATUS(ByVal cvssScore As Double, ByVal safetyRating As 
 
     ' Assign final output state back to the spreadsheet function calling framework
     GET_CONTROLLED_STATUS = foundStatus
+    Exit Function
+
 ErrorHandler:
     GET_CONTROLLED_STATUS = "Unknown"
 End Function
