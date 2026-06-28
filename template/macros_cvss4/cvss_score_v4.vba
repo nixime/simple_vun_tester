@@ -526,7 +526,7 @@ End Function
 ' ==============================================================================
 ' CVSS 4.0 EQUATION LEVELS
 ' ==============================================================================
-Private Function getEqLevel1(ByRef vecArray() As String) As Integer
+Private Function getEqLevel1(ByRef vecArray As Variant) As Integer
     If vecArray(idx_AV) = "N" And vecArray(idx_PR) = "N" And vecArray(idx_UI) = "N" Then
         getEqLevel1 = 0
     ElseIf (vecArray(idx_AV) = "N" Or vecArray(idx_PR) = "N" Or vecArray(idx_UI) = "N") And Not vecArray(idx_AV) = "P" Then
@@ -536,7 +536,7 @@ Private Function getEqLevel1(ByRef vecArray() As String) As Integer
     End If
 End Function
 
-Private Function getEqLevel2(ByRef vecArray() As String) As Integer
+Private Function getEqLevel2(ByRef vecArray As Variant) As Integer
     If vecArray(idx_AC) = "L" And vecArray(idx_AT) = "N" Then
         getEqLevel2 = 0
     Else
@@ -544,7 +544,7 @@ Private Function getEqLevel2(ByRef vecArray() As String) As Integer
     End If
 End Function
 
-Private Function getEqLevel3(ByRef vecArray() As String) As Integer
+Private Function getEqLevel3(ByRef vecArray As Variant) As Integer
     If vecArray(idx_VC) = "H" And vecArray(idx_VI) = "H" Then
         getEqLevel3 = 0
     ElseIf vecArray(idx_VC) = "H" Or vecArray(idx_VI) = "H" Or vecArray(idx_VA) = "H" Then
@@ -554,7 +554,7 @@ Private Function getEqLevel3(ByRef vecArray() As String) As Integer
     End If
 End Function
 
-Private Function getEqLevel4(ByRef vecArray() As String) As Integer
+Private Function getEqLevel4(ByRef vecArray As Variant) As Integer
     If vecArray(idx_SI) = "S" Or vecArray(idx_SA) = "S" Then
         getEqLevel4 = 0
     ElseIf vecArray(idx_SC) = "H" Or vecArray(idx_SI) = "H" Or vecArray(idx_SA) = "H" Then
@@ -564,7 +564,7 @@ Private Function getEqLevel4(ByRef vecArray() As String) As Integer
     End If
 End Function
 
-Private Function getEqLevel5(ByRef vecArray() As String) As Integer
+Private Function getEqLevel5(ByRef vecArray As Variant) As Integer
     If vecArray(idx_E) = "A" Or vecArray(idx_E) = "X" Then
         getEqLevel5 = 0
     ElseIf vecArray(idx_E) = "P" Then
@@ -574,7 +574,7 @@ Private Function getEqLevel5(ByRef vecArray() As String) As Integer
     End If
 End Function
 
-Private Function getEqLevel6(ByRef vecArray() As String) As Integer
+Private Function getEqLevel6(ByRef vecArray As Variant) As Integer
     Dim cr As String, vc As String, ir As String, vi As String, ar As String, va As String
     cr = vecArray(idx_CR): vc = vecArray(idx_VC): ir = vecArray(idx_IR): vi = vecArray(idx_VI): ar = vecArray(idx_AR): va = vecArray(idx_VA)
 
@@ -589,7 +589,7 @@ Private Function getEqLevel6(ByRef vecArray() As String) As Integer
     End If
 End Function
 
-Private Function getJointEqLevel36(ByRef vecArray() As String) As String
+Private Function getJointEqLevel36(ByRef vecArray As Variant) As String
     Dim cr As String, vc As String, ir As String, vi As String, ar As String, va As String
     cr = vecArray(idx_CR): vc = vecArray(idx_VC): ir = vecArray(idx_IR): vi = vecArray(idx_VI): ar = vecArray(idx_AR): va = vecArray(idx_VA)
     
@@ -611,7 +611,7 @@ Private Function getJointEqLevel36(ByRef vecArray() As String) As String
     End If
 End Function
 
-Private Function get_severity_distance_vecArray(ByRef vecArray() As String, ByRef max_vecArray() As String, ByVal key As String) As Double
+Private Function get_severity_distance_vecArray(ByRef vecArray As Variant, ByRef max_vecArray As Variant, ByVal key As String) As Double
     Dim idx As Integer
     Select Case key
         Case "AV": idx = idx_AV: Case "AC": idx = idx_AC: Case "AT": idx = idx_AT
@@ -836,7 +836,7 @@ Public Function cvss_score(ByVal VectorStr As String) As Double
     Dim severity_distance_SC As Double, severity_distance_SI As Double, severity_distance_SA As Double
     Dim severity_distance_CR As Double, severity_distance_IR As Double, severity_distance_AR As Double
     Dim max_vector As Variant
-    Dim max_vector_vecArray() As String
+    Dim max_vector_vecArray As Variant
 
     For Each max_vector In max_vectors
         max_vector_vecArray = ParseVectorToArray(max_vector)
