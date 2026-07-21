@@ -1,19 +1,31 @@
 Option Explicit
 
+Function ExtractCode(inputStr As String) As String
+    Dim startPos As Long
+    Dim endPos As Long
+    
+    startPos = InStr(inputStr, "(")
+    endPos = InStr(inputStr, ")")
+    
+    If startPos > 0 And endPos > startPos Then
+        ExtractCode = Trim(Mid(inputStr, startPos + 1, endPos - startPos - 1))
+    Else
+        ExtractCode = ""
+    End If
+End Function
+
 ' ==============================================================================
-' PUBLIC METHOD 1: Calculate Base Finding Subscore
-' Takes string values for Technical Impact, Acquired Privilege, 
-' Acquired Privilege Layer, Internal Control Effectiveness, and Finding Confidence.
+' Calculate Base Finding Subscore
 ' ==============================================================================
 Public Function CalculateBaseFinding(ti As String, ap As String, al As String, ic As String, fc As String) As Double
     Dim vTI As Double, vAP As Double, vAL As Double, vIC As Double, vFC As Double
     Dim fTI As Double
     
-    vTI = GetVal_Impact(ti)
-    vAP = GetVal_Privilege(ap)
-    vAL = GetVal_Layer(al)
-    vIC = GetVal_Control(ic)
-    vFC = GetVal_Confidence(fc)
+    vTI = GetVal_TI(ExtractCode(ti))
+    vAP = GetVal_AP(ExtractCode(ap))
+    vAL = GetVal_AL(ExtractCode(al))
+    vIC = GetVal_IC(ExtractCode(ic))
+    vFC = GetVal_FC(ExtractCode(fc))
     
     If vTI > 0 Then fTI = 1 Else fTI = 0
     
@@ -23,19 +35,17 @@ Public Function CalculateBaseFinding(ti As String, ap As String, al As String, i
 End Function
 
 ' ==============================================================================
-' PUBLIC METHOD 2: Calculate Attack Surface Subscore
-' Takes string values for Required Privilege, Required Privilege Layer, 
-' Access Vector, Authentication Strength, Level of Interaction, and Deployment Scope.
+' Calculate Attack Surface Subscore
 ' ==============================================================================
 Public Function CalculateAttackSurface(rp As String, rl As String, av As String, asStr As String, inStr As String, sc As String) As Double
     Dim vRP As Double, vRL As Double, vAV As Double, vAS As Double, vIN As Double, vSC As Double
     
-    vRP = GetVal_Privilege(rp)
-    vRL = GetVal_Layer(rl)
-    vAV = GetVal_AccessVector(av)
-    vAS = GetVal_AuthStrength(asStr)
-    vIN = GetVal_Interaction(inStr)
-    vSC = GetVal_DeploymentScope(sc)
+    vRP = GetVal_RP(ExtractCode(rp))
+    vRL = GetVal_RL(ExtractCode(rl))
+    vAV = GetVal_AV(ExtractCode(av))
+    vAS = GetVal_AS(ExtractCode(asStr))
+    vIN = GetVal_IN(ExtractCode(inStr))
+    vSC = GetVal_SC(ExtractCode(sc))
     
     CalculateAttackSurface = (20 * (vRP + vRL + vAV) + 20 * vSC + 15 * vIN + 5 * vAS) / 100.0
     If CalculateAttackSurface > 1 Then CalculateAttackSurface = 1
@@ -43,19 +53,17 @@ Public Function CalculateAttackSurface(rp As String, rl As String, av As String,
 End Function
 
 ' ==============================================================================
-' PUBLIC METHOD 3: Calculate Environmental Subscore
-' Takes string values for Business Impact, Likelihood of Discovery, 
-' Likelihood of Exploit, External Control Effectiveness, and Prevalence.
+' Calculate Environmental Subscore
 ' ==============================================================================
 Public Function CalculateEnvironmental(bi As String, di As String, ex As String, ec As String, p As String) As Double
     Dim vBI As Double, vDI As Double, vEX As Double, vEC As Double, vP As Double
     Dim fBI As Double
     
-    vBI = GetVal_Impact(bi)
-    vDI = GetVal_Discovery(di)
-    vEX = GetVal_Exploit(ex)
-    vEC = GetVal_Control(ec)
-    vP = GetVal_Prevalence(p)
+    vBI = GetVal_BI(ExtractCode(bi))
+    vDI = GetVal_DI(ExtractCode(di))
+    vEX = GetVal_EX(ExtractCode(ex))
+    vEC = GetVal_EC(ExtractCode(ec))
+    vP = GetVal_P(ExtractCode(p))
     
     If vBI > 0 Then fBI = 1 Else fBI = 0
     
@@ -64,132 +72,257 @@ Public Function CalculateEnvironmental(bi As String, di As String, ex As String,
     If CalculateEnvironmental < 0 Then CalculateEnvironmental = 0
 End Function
 
-' ==============================================================================
-' PRIVATE MAPPING / LOOKUP FUNCTIONS BASED ON REFERENCE TABLES
-' ==============================================================================
 
-Private Function GetVal_Impact(s As String) As Double
-    Select Case UCase(Trim(s))
-        Case "C", "CRITICAL": GetVal_Impact = 1.0
-        Case "H", "HIGH": GetVal_Impact = 0.75
-        Case "M", "MEDIUM": GetVal_Impact = 0.5
-        Case "L", "LOW": GetVal_Impact = 0.25
-        Case "N", "NONE": GetVal_Impact = 0.0
-        Case Else: GetVal_Impact = 0.5
+' =====================================================================
+' Complete CWSS v1.0.1 Component Weight Mapping Functions
+' Naming Convention: GetVal_XX
+' Returns official MITRE CWSS numeric weights for all metric factors
+' =====================================================================
+
+' ---------------------------------------------------------------------
+' 1. BASE FINDING METRIC GROUP
+' ---------------------------------------------------------------------
+
+' Technical Impact (TI)
+Function GetVal_TI(code As String) As Double
+    Select Case UCase(Trim(code))
+        Case "C": GetVal_TI = 1.0
+        Case "H": GetVal_TI = 0.9
+        Case "M": GetVal_TI = 0.6
+        Case "L": GetVal_TI = 0.3
+        Case "N": GetVal_TI = 0.0
+        Case "D": GetVal_TI = 0.6
+        Case "UK": GetVal_TI = 0.5
+        Case "NA": GetVal_TI = 1.0
+        Case Else: GetVal_TI = 0
     End Select
 End Function
 
-Private Function GetVal_Privilege(s As String) As Double
-    Select Case UCase(Trim(s))
-        Case "A", "ADMINISTRATOR": GetVal_Privilege = 0.0
-        Case "R", "REGULAR USER": GetVal_Privilege = 0.5
-        Case "N", "NONE": GetVal_Privilege = 1.0
-        Case Else: GetVal_Privilege = 0.5
+' Acquired Privilege (AP)
+Function GetVal_AP(code As String) As Double
+    Select Case UCase(Trim(code))
+        Case "A": GetVal_AP = 1.0
+        Case "P": GetVal_AP = 0.9
+        Case "RU": GetVal_AP = 0.7
+        Case "L": GetVal_AP = 0.6
+        Case "N": GetVal_AP = 0.1
+        Case "D": GetVal_AP = 0.7
+        Case "UK": GetVal_AP = 0.5
+        Case "NA": GetVal_AP = 1.0
+        Case Else: GetVal_AP = 0
     End Select
 End Function
 
-Private Function GetVal_Layer(s As String) As Double
-    Select Case UCase(Trim(s))
-        Case "E", "ENTERPRISE": GetVal_Layer = 1.0
-        Case "I", "INFRASTRUCTURE": GetVal_Layer = 0.8
-        Case "S", "SYSTEM": GetVal_Layer = 0.6
-        Case "A", "APPLICATION": GetVal_Layer = 0.4
-        Case "N", "NETWORK": GetVal_Layer = 0.2
-        Case Else: GetVal_Layer = 0.5
+' Acquired Privilege Layer (AL)
+Function GetVal_AL(code As String) As Double
+    Select Case UCase(Trim(code))
+        Case "A": GetVal_AL = 1.0
+        Case "S": GetVal_AL = 0.9
+        Case "N": GetVal_AL = 0.7
+        Case "E": GetVal_AL = 1.0
+        Case "D": GetVal_AL = 0.9
+        Case "UK": GetVal_AL = 0.5
+        Case "NA": GetVal_AL = 1.0
+        Case Else: GetVal_AL = 0
     End Select
 End Function
 
-Private Function GetVal_Control(s As String) As Double
-    Select Case UCase(Trim(s))
-        Case "N", "NONE": GetVal_Control = 1.0
-        Case "L", "LIMITED / STANDARD", "LIMITED": GetVal_Control = 0.75
-        Case "O", "OPPORTUNISTIC", "MODERATE": GetVal_Control = 0.5
-        Case "W", "WEAK": GetVal_Control = 0.25
-        Case "S", "STRONG": GetVal_Control = 0.25
-        Case "H", "HIGH": GetVal_Control = 0.0
-        Case Else: GetVal_Control = 1.0
+' Internal Control Effectiveness (IC)
+Function GetVal_IC(code As String) As Double
+    Select Case UCase(Trim(code))
+        Case "N": GetVal_IC = 1.0
+        Case "L": GetVal_IC = 0.9
+        Case "M": GetVal_IC = 0.7
+        Case "I": GetVal_IC = 0.5
+        Case "B": GetVal_IC = 0.3
+        Case "C": GetVal_IC = 0.0
+        Case "D": GetVal_IC = 0.6
+        Case "UK": GetVal_IC = 0.5
+        Case "NA": GetVal_IC = 1.0
+        Case Else: GetVal_IC = 0
     End Select
 End Function
 
-Private Function GetVal_Confidence(s As String) As Double
-    Select Case UCase(Trim(s))
-        Case "PR", "PROVEN": GetVal_Confidence = 1.0
-        Case "T", "TRUE": GetVal_Confidence = 0.75
-        Case "PL", "PROVEN LOCALLY": GetVal_Confidence = 0.5
-        Case "PO", "POTENTIAL": GetVal_Confidence = 0.25
-        Case "PF", "PROVEN FALSE": GetVal_Confidence = 0.0
-        Case Else: GetVal_Confidence = 0.75
+' Finding Confidence (FC)
+Function GetVal_FC(code As String) As Double
+    Select Case UCase(Trim(code))
+        Case "T": GetVal_FC = 1.0
+        Case "LT": GetVal_FC = 0.8
+        Case "F": GetVal_FC = 0.0
+        Case "D": GetVal_FC = 0.8
+        Case "UK": GetVal_FC = 0.5
+        Case "NA": GetVal_FC = 1.0
+        Case Else: GetVal_FC = 0
     End Select
 End Function
 
-Private Function GetVal_AccessVector(s As String) As Double
-    Select Case UCase(Trim(s))
-        Case "I", "INTERNET": GetVal_AccessVector = 1.0
-        Case "W", "INTRANET": GetVal_AccessVector = 0.75
-        Case "P", "PRIVATE NETWORK": GetVal_AccessVector = 0.5
-        Case "L", "LOCAL": GetVal_AccessVector = 0.25
-        Case "X", "PHYSICAL": GetVal_AccessVector = 0.0
-        Case Else: GetVal_AccessVector = 0.5
+
+' ---------------------------------------------------------------------
+' 2. ATTACK SURFACE METRIC GROUP
+' ---------------------------------------------------------------------
+
+' Required Privilege (RP)
+Function GetVal_RP(code As String) As Double
+    Select Case UCase(Trim(code))
+        Case "N": GetVal_RP = 1.0
+        Case "L": GetVal_RP = 0.9
+        Case "RU": GetVal_RP = 0.7
+        Case "P": GetVal_RP = 0.6
+        Case "A": GetVal_RP = 0.1
+        Case "D": GetVal_RP = 0.7
+        Case "UK": GetVal_RP = 0.5
+        Case "NA": GetVal_RP = 1.0
+        Case Else: GetVal_RP = 0
     End Select
 End Function
 
-Private Function GetVal_AuthStrength(s As String) As Double
-    Select Case UCase(Trim(s))
-        Case "N", "NONE": GetVal_AuthStrength = 1.0
-        Case "W", "WEAK": GetVal_AuthStrength = 0.66
-        Case "S", "STRONG": GetVal_AuthStrength = 0.33
-        Case Else: GetVal_AuthStrength = 0.0
+' Required Privilege Layer (RL)
+Function GetVal_RL(code As String) As Double
+    Select Case UCase(Trim(code))
+        Case "A": GetVal_RL = 1.0
+        Case "S": GetVal_RL = 0.9
+        Case "N": GetVal_RL = 0.7
+        Case "E": GetVal_RL = 1.0
+        Case "D": GetVal_RL = 0.9
+        Case "UK": GetVal_RL = 0.5
+        Case "NA": GetVal_RL = 1.0
+        Case Else: GetVal_RL = 0
     End Select
 End Function
 
-Private Function GetVal_Interaction(s As String) As Double
-    Select Case UCase(Trim(s))
-        Case "N", "NONE": GetVal_Interaction = 0.0
-        Case "L", "LIMITED / STANDARD": GetVal_Interaction = 0.33
-        Case "O", "OPPORTUNISTIC": GetVal_Interaction = 0.66
-        Case "H", "HIGH", "ACTIVE": GetVal_Interaction = 1.0
-        Case Else: GetVal_Interaction = 0.0
+' Access Vector (AV)
+Function GetVal_AV(code As String) As Double
+    Select Case UCase(Trim(code))
+        Case "I": GetVal_AV = 1.0
+        Case "R": GetVal_AV = 0.8   ' Intranet
+        Case "V": GetVal_AV = 0.8    ' Private Network
+        Case "A": GetVal_AV = 0.7   ' Adjacent Network
+        Case "L": GetVal_AV = 0.5    ' Local
+        Case "P": GetVal_AV = 0.2   ' Physical
+        Case "D": GetVal_AV = 0.75
+        Case "U": GetVal_AV = 0.5
+        Case "NA": GetVal_AV = 1.0
+        Case Else: GetVal_AV = 0
     End Select
 End Function
 
-Private Function GetVal_DeploymentScope(s As String) As Double
-    Select Case UCase(Trim(s))
-        Case "A", "ALL": GetVal_DeploymentScope = 1.0
-        Case "C", "COMMON": GetVal_DeploymentScope = 0.75
-        Case "O", "OCCASIONAL": GetVal_DeploymentScope = 0.5
-        Case "R", "RARE": GetVal_DeploymentScope = 0.25
-        Case "N", "NONE": GetVal_DeploymentScope = 0.0
-        Case Else: GetVal_DeploymentScope = 0.5
+' Authentication Strength (AS)
+Function GetVal_AS(code As String) As Double
+    Select Case UCase(Trim(code))
+        Case "S": GetVal_AS = 0.7
+        Case "M": GetVal_AS = 0.8
+        Case "W": GetVal_AS = 0.9
+        Case "N": GetVal_AS = 1.0
+        Case "D": GetVal_AS = 0.85
+        Case "UK": GetVal_AS = 0.5
+        Case "NA": GetVal_AS = 1.0
+        Case Else: GetVal_AS = 0
     End Select
 End Function
 
-Private Function GetVal_Discovery(s As String) As Double
-    Select Case UCase(Trim(s))
-        Case "H", "HIGH": GetVal_Discovery = 1.0
-        Case "M", "MEDIUM": GetVal_Discovery = 0.66
-        Case "L", "LOW": GetVal_Discovery = 0.33
-        Case "N", "NONE": GetVal_Discovery = 0.0
-        Case Else: GetVal_Discovery = 0.5
+' Level of Interaction (IN)
+Function GetVal_IN(code As String) As Double
+    Select Case UCase(Trim(code))
+        Case "A": GetVal_IN = 1.0    ' Automated
+        Case "T": GetVal_IN = 0.9   ' Typical/Limited
+        Case "M": GetVal_IN = 0.8    ' Moderate
+        Case "O": GetVal_IN = 0.3    ' Opportunistic
+        Case "H": GetVal_IN = 0.1    ' High
+        Case "NI": GetVal_IN = 0.0    ' No interaction
+        Case "D": GetVal_IN = 0.55
+        Case "UK": GetVal_IN = 0.5
+        Case "NA": GetVal_IN = 1.0
+        Case Else: GetVal_IN = 0
     End Select
 End Function
 
-Private Function GetVal_Exploit(s As String) As Double
-    Select Case UCase(Trim(s))
-        Case "A", "ACTIVE": GetVal_Exploit = 1.0
-        Case "P", "PROOF OF CONCEPT": GetVal_Exploit = 0.75
-        Case "U", "THEORETICAL": GetVal_Exploit = 0.5
-        Case "N", "NONE": GetVal_Exploit = 0.0
-        Case Else: GetVal_Exploit = 0.0
+' Deployment Scope (SC)
+Function GetVal_SC(code As String) As Double
+    Select Case UCase(Trim(code))
+        Case "A": GetVal_SC = 1.0    ' All
+        Case "M": GetVal_SC = 0.9    ' Moderate
+        Case "R": GetVal_SC = 0.5    ' Rare
+        Case "P": GetVal_SC = 0.1   ' Potentially Reachable
+        Case "D": GetVal_SC = 0.7
+        Case "UK": GetVal_SC = 0.5
+        Case "NA": GetVal_SC = 1.0
+        Case Else: GetVal_SC = 0
     End Select
 End Function
 
-Private Function GetVal_Prevalence(s As String) As Double
-    Select Case UCase(Trim(s))
-        Case "W", "WIDESPREAD": GetVal_Prevalence = 1.0
-        Case "C", "COMMON": GetVal_Prevalence = 0.75
-        Case "O", "OCCASIONAL": GetVal_Prevalence = 0.5
-        Case "R", "RARE": GetVal_Prevalence = 0.25
-        Case "N", "NONE": GetVal_Prevalence = 0.0
-        Case Else: GetVal_Prevalence = 0.5
+
+' ---------------------------------------------------------------------
+' 3. ENVIRONMENTAL METRIC GROUP
+' ---------------------------------------------------------------------
+
+' Business Impact (BI)
+Function GetVal_BI(code As String) As Double
+    Select Case UCase(Trim(code))
+        Case "C": GetVal_BI = 1.0
+        Case "H": GetVal_BI = 0.9
+        Case "M": GetVal_BI = 0.6
+        Case "L": GetVal_BI = 0.3
+        Case "N": GetVal_BI = 0.0
+        Case "D": GetVal_BI = 0.6
+        Case "UK": GetVal_BI = 0.5
+        Case "NA": GetVal_BI = 1.0
+        Case Else: GetVal_BI = 0
+    End Select
+End Function
+
+' Likelihood of Discovery (DI)
+Function GetVal_DI(code As String) As Double
+    Select Case UCase(Trim(code))
+        Case "H": GetVal_DI = 1.0
+        Case "M": GetVal_DI = 0.6
+        Case "L": GetVal_DI = 0.2
+        Case "D": GetVal_DI = 0.6
+        Case "UK": GetVal_DI = 0.5
+        Case "NA": GetVal_DI = 1.0
+        Case Else: GetVal_DI = 0
+    End Select
+End Function
+
+' Likelihood of Exploit (EX)
+Function GetVal_EX(code As String) As Double
+    Select Case UCase(Trim(code))
+        Case "H": GetVal_EX = 1.0
+        Case "M": GetVal_EX = 0.6
+        Case "L": GetVal_EX = 0.2
+        Case "N": GetVal_EX = 0.0
+        Case "D": GetVal_EX = 0.6
+        Case "UK": GetVal_EX = 0.5
+        Case "NA": GetVal_EX = 1.0
+        Case Else: GetVal_EX = 0
+    End Select
+End Function
+
+' External Control Effectiveness (EC)
+Function GetVal_EC(code As String) As Double
+    Select Case UCase(Trim(code))
+        Case "N": GetVal_EC = 1.0
+        Case "L": GetVal_EC = 0.9
+        Case "M": GetVal_EC = 0.7
+        Case "I": GetVal_EC = 0.5
+        Case "B": GetVal_EC = 0.3
+        Case "C": GetVal_EC = 0.1
+        Case "D": GetVal_EC = 0.6
+        Case "UK": GetVal_EC = 0.5
+        Case "NA": GetVal_EC = 1.0
+        Case Else: GetVal_EC = 0
+    End Select
+End Function
+
+' Prevalence (P)
+Function GetVal_P(code As String) As Double
+    Select Case UCase(Trim(code))
+        Case "W": GetVal_P = 1.0    ' Widespread
+        Case "H": GetVal_P = 0.9    ' High
+        Case "C": GetVal_P = 0.8    ' Common
+        Case "L": GetVal_P = 0.7    ' Limited
+        Case "D": GetVal_P = 0.85
+        Case "UK": GetVal_P = 0.5
+        Case "NA": GetVal_P = 1.0
+        Case Else: GetVal_P = 0
     End Select
 End Function
